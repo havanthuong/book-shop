@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <changeSet id="00000000000001-init" author="admin">
+        <createTable tableName="t_users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="blocked_count" type="int" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="blocked_date" type="timestamp(6)"/>
+            <column name="role" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deleted" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+        <addUniqueConstraint columnNames="email"
+                             constraintName="uni_user_email"
+                             tableName="t_users"/>
+
+        <createTable tableName="t_user_details">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="full_name" type="varchar(250)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="photo_url" type="varchar(250)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="fk_user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="fk_user_id"
+                                 baseTableName="t_user_details"
+                                 constraintName="fk_user_detail_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="t_users"/>
+
+        <createTable tableName="t_user_web_sessions">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token_id" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_date" type="timestamp(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fk_user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp(6)"/>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp(6)"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="fk_user_id"
+                                 baseTableName="t_user_web_sessions"
+                                 constraintName="fk_web_session_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="t_users"/>
+
+
+    </changeSet>
+
+    <changeSet id="00000000000002-init" author="admin">
+        <sql>
+            INSERT INTO t_users (email, phone,password,blocked_count,role,status,created_by)
+            VALUES ('admin@gmail.com','0909090909','$2a$10$PwDP8oE83N9N.ca3ve8pi.raEuqqN7eDF7gJMSODMljLt/MnZ6pcS', 0, 'ADMIN','ACTIVE', 'SYSTEM');
+            SET @user_id := LAST_INSERT_ID();
+
+            INSERT INTO t_user_details (full_name, photo_url, fk_user_id, created_by)
+            VALUES ('admin', null, @user_id, 'SYSTEM')
+        </sql>
+    </changeSet>
+</databaseChangeLog>
